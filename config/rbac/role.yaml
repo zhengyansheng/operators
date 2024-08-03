@@ -1,11 +1,32 @@
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  labels:
-    app.kubernetes.io/name: operators
-    app.kubernetes.io/managed-by: kustomize
   name: manager-role
 rules:
-- apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - ship.example.org
+  resources:
+  - frigates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ship.example.org
+  resources:
+  - frigates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ship.example.org
+  resources:
+  - frigates/status
+  verbs:
+  - get
+  - patch
+  - update
