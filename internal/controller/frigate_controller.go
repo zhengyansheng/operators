@@ -63,7 +63,7 @@ func (r *FrigateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	appCopy := app.DeepCopy()
 	appCopy.Status.Result = result
 
-	if err := r.Client.Update(ctx, appCopy); err != nil {
+	if err := r.Client.Status().Update(ctx, appCopy); err != nil {
 		return ctrl.Result{}, err
 	}
 
