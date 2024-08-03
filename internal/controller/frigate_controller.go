@@ -18,7 +18,7 @@ package controller
 
 import (
 	"context"
-
+	"fmt"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -47,10 +47,27 @@ type FrigateReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.18.4/pkg/reconcile
 func (r *FrigateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	logger := log.FromContext(ctx)
 
 	// TODO(user): your logic here
+	app := shipv1beta1.Frigate{}
+	if err := r.Client.Get(ctx, req.NamespacedName, &app); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
 
+	action := app.Spec.Action
+	object := app.Spec.Object
+	result := fmt.Sprintf("action: %v, object: %v", action, object)
+
+	// 深拷贝 防止污染
+	appCopy := app.DeepCopy()
+	appCopy.Status.Result = result
+
+	if err := r.Client.Update(ctx, appCopy); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	logger.Info("reconcile end")
 	return ctrl.Result{}, nil
 }
 
